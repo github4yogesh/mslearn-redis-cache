@@ -2,12 +2,13 @@ using System;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using StackExchange.Redis;
+using System.Threading.Tasks;
 
 namespace SportsStatsTracker
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -26,11 +27,11 @@ namespace SportsStatsTracker
                 IDatabase db = cache.GetDatabase();
                 
                 // Add a value to the cache
-                bool setValue = db.StringSet("test:key", "some value");
+                bool setValue = await db.StringSetAsync("test", "100");
                 Console.WriteLine($"SET: {setValue}");
 
                 // Get a value from the cache
-                string getValue = db.StringGet("test:key");
+                string getValue = await db.StringGetAsync("test");
                 Console.WriteLine($"GET: {getValue}");
             }
         }
