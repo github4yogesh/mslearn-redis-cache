@@ -33,6 +33,34 @@ namespace SportsStatsTracker
                 // Get a value from the cache
                 string getValue = await db.StringGetAsync("test");
                 Console.WriteLine($"GET: {getValue}");
+
+                // Increment the value by 50
+                long newValue = await db.StringIncrementAsync("counter", 50);
+                Console.WriteLine($"INCR new value = {newValue}");
+
+                // PING should respond with "PONG".
+                var result = await db.ExecuteAsync("ping");
+                Console.WriteLine($"PING = {result.Type} : {result}");
+
+                // Store Object type using JSON Serialization
+                // https://docs.microsoft.com/en-us/learn/modules/optimize-your-web-apps-with-redis/5-execute-redis-commands?pivots=csharp
+                var stat = new GameStat("Soccer", new DateTime(1950, 7, 16), "FIFA World Cup", 
+                    new[] { "Uruguay", "Brazil" },
+                    new[] { ("Uruguay", 2), ("Brazil", 1) });
+
+                string serializedValue = Newtonsoft.Json.JsonConvert.SerializeObject(stat);
+                bool added = db.StringSet("event:1950-world-cup", serializedValue);
+
+                var statValue = db.StringGet("event:1950-world-cup");
+                stat = Newtonsoft.Json.JsonConvert.DeserializeObject<GameStat>(statValue.ToString());
+                Console.WriteLine(stat.Sport); // displays "Soccer"
+
+                // Execute "FLUSHDB" to clear the database values.
+                // It should respond with "OK".
+                result = await db.ExecuteAsync("flushdb");
+                Console.WriteLine($"FLUSHDB = {result.Type} : {result}");
+
+
             }
         }
     }
